@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Index() {
   const [task, setTask] = useState('');
@@ -10,6 +11,38 @@ export default function Index() {
   const [total, setTotal] = useState(0);
   const [experience, setExperience] = useState(0);
   const [level, setLevel] = useState(0);
+
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
+  useEffect(() => {
+    saveTasks();
+  }, [tasks, total, experience, level]);
+
+  const saveTasks = async () => {
+    try {
+      const data = JSON.stringify({ tasks, total, experience, level });
+      await AsyncStorage.setItem('tasksData', data);
+    } catch (error) {
+      console.error('Failed to save tasks', error);
+    }
+  };
+
+  const loadTasks = async () => {
+    try {
+      const data = await AsyncStorage.getItem('tasksData');
+      if (data !== null) {
+        const { tasks, total, experience, level } = JSON.parse(data);
+        setTasks(tasks);
+        setTotal(total);
+        setExperience(experience);
+        setLevel(level);
+      }
+    } catch (error) {
+      console.error('Failed to load tasks', error);
+    }
+  };
 
   const addTask = () => {
     if (task === '' || value === '') {
