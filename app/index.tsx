@@ -74,7 +74,7 @@ export default function Index() {
 
   const subtractFromTotal = (value) => {
     setTotal(total - value);
-    addExperience(value);
+    addExperience(-value);
   };
 
   const addExperience = (value) => {
@@ -111,7 +111,7 @@ export default function Index() {
       <TouchableOpacity onPress={() => removeTask(item)}>
         <Text style={styles.removeButton}>Remove</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => subtractFromTotal(-item.value)}>
+      <TouchableOpacity onPress={() => subtractFromTotal(item.value)}>
         <Text style={styles.undoButton}>Undo</Text>
       </TouchableOpacity>
     </TouchableOpacity>
