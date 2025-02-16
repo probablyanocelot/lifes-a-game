@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, TouchableOpacity, Alert, StyleSheet, ScrollView } from 'react-native';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -11,18 +11,21 @@ export default function Index() {
   const [total, setTotal] = useState(0);
   const [experience, setExperience] = useState(0);
   const [level, setLevel] = useState(0);
+  const [totalToday, setTotalToday] = useState(0);
 
   useEffect(() => {
     loadTasks();
+    const interval = setInterval(resetTotalToday, 24 * 60 * 60 * 1000); // 24 hours
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
     saveTasks();
-  }, [tasks, total, experience, level]);
+  }, [tasks, total, experience, level, totalToday]);
 
   const saveTasks = async () => {
     try {
-      const data = JSON.stringify({ tasks, total, experience, level });
+      const data = JSON.stringify({ tasks, total, experience, level, totalToday });
       await AsyncStorage.setItem('tasksData', data);
     } catch (error) {
       console.error('Failed to save tasks', error);
@@ -33,15 +36,20 @@ export default function Index() {
     try {
       const data = await AsyncStorage.getItem('tasksData');
       if (data !== null) {
-        const { tasks, total, experience, level } = JSON.parse(data);
+        const { tasks, total, experience, level, totalToday } = JSON.parse(data);
         setTasks(tasks);
         setTotal(total);
         setExperience(experience);
         setLevel(level);
+        setTotalToday(totalToday);
       }
     } catch (error) {
       console.error('Failed to load tasks', error);
     }
+  };
+
+  const resetTotalToday = () => {
+    setTotalToday(0);
   };
 
   const addTask = () => {
@@ -69,11 +77,13 @@ export default function Index() {
 
   const addToTotal = (value) => {
     setTotal(total + value);
+    setTotalToday(totalToday + value);
     addExperience(value);
   };
 
   const subtractFromTotal = (value) => {
     setTotal(total - value);
+    setTotalToday(totalToday - value);
     addExperience(-value);
   };
 
@@ -138,18 +148,23 @@ export default function Index() {
           />
         </View>
         <Button title="Add Task" onPress={addTask} />
-        <DraggableFlatList
-          data={tasks}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.key}
-          onDragEnd={({ data }) => setTasks(data)}
-        />
-        <View style={styles.experienceBar}>
-          <View style={{ ...styles.experienceFill, width: `${(experience / nextLevelExp) * 100}%` }} />
-          <Text style={styles.experienceText}>{experience} / {nextLevelExp}</Text>
+        <View style={styles.listContainer}>
+          <DraggableFlatList
+            data={tasks}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.key}
+            onDragEnd={({ data }) => setTasks(data)}
+          />
         </View>
-        <Text style={styles.levelText}>Level: {level}</Text>
-        <Text style={styles.totalText}>Daily Total: {total}</Text>
+        <ScrollView contentContainerStyle={styles.footerContainer}>
+          <View style={styles.experienceBar}>
+            <View style={{ ...styles.experienceFill, width: `${(experience / nextLevelExp) * 100}%` }} />
+            <Text style={styles.experienceText}>{experience} / {nextLevelExp}</Text>
+          </View>
+          <Text style={styles.levelText}>Level: {level}</Text>
+          <Text style={styles.totalText}>Total XP: {total}</Text>
+          <Text style={styles.totalToday}>Today's XP: {totalToday}</Text>
+        </ScrollView>
       </View>
     </GestureHandlerRootView>
   );
@@ -183,6 +198,9 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     padding: 10,
     borderRadius: 5,
+  },
+  listContainer: {
+    flex: 1,
   },
   taskContainer: {
     flexDirection: 'row',
@@ -243,5 +261,12 @@ const styles = StyleSheet.create({
   totalText: {
     fontSize: 20,
     marginTop: 10,
+  },
+  totalToday: {
+    fontSize: 20,
+    marginTop: 10,
+  },
+  footerContainer: {
+    paddingBottom: 20,
   },
 });
