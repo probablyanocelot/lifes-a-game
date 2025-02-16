@@ -132,7 +132,7 @@ export default function Index() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={styles.container}>
         <Button title="SKILLS" onPress={() => Alert.alert('Skills Button Pressed')} />
-        <Text style={styles.title}>To-Do List Manager</Text>
+        <Text style={styles.title}>Quests</Text>
 
         <View style={styles.listContainer}>
           <DraggableFlatList
@@ -186,7 +186,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    marginBottom: 20,
+    marginTop: 10,
+    marginBottom: 10,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -208,7 +209,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   listContainer: {
-    flex: 1,
+    flex: 7,
+    marginBottom: "auto",
   },
   taskContainer: {
     flexDirection: 'row',
