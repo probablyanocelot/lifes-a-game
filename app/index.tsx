@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, TouchableOpacity, Alert, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, Button, TouchableOpacity, Alert, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export default function Index() {
   const [task, setTask] = useState('');
@@ -130,7 +131,20 @@ export default function Index() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={styles.container}>
+        <Button title="SKILLS" onPress={() => Alert.alert('Skills Button Pressed')} />
         <Text style={styles.title}>To-Do List Manager</Text>
+
+        <View style={styles.listContainer}>
+          <DraggableFlatList
+            data={tasks}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.key}
+            onDragEnd={({ data }) => setTasks(data)}
+          />
+        </View>
+
+        <ScrollView contentContainerStyle={styles.footerContainer}>
+
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.valueInput}
@@ -148,15 +162,6 @@ export default function Index() {
           />
         </View>
         <Button title="Add Task" onPress={addTask} />
-        <View style={styles.listContainer}>
-          <DraggableFlatList
-            data={tasks}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.key}
-            onDragEnd={({ data }) => setTasks(data)}
-          />
-        </View>
-        <ScrollView contentContainerStyle={styles.footerContainer}>
           <View style={styles.experienceBar}>
             <View style={{ ...styles.experienceFill, width: `${(experience / nextLevelExp) * 100}%` }} />
             <Text style={styles.experienceText}>{experience} / {nextLevelExp}</Text>
@@ -169,6 +174,9 @@ export default function Index() {
     </GestureHandlerRootView>
   );
 }
+
+const setVW = (percentage) => Dimensions.get('window').width * (percentage / 100);
+const setVH = (percentage) => Dimensions.get('window').height * (percentage / 100);
 
 const styles = StyleSheet.create({
   container: {
@@ -267,6 +275,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   footerContainer: {
+    marginTop: "auto",
     paddingBottom: 20,
   },
 });
